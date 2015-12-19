@@ -3,13 +3,13 @@ Players = new Mongo.Collection('player');
 Meteor.startup(function(){
   Players.update(
     {"_id": "1"},
-    {"_id": "1", "choice": ""},
+    {"_id": "1"},
     {upsert: true}
   );
 
   Players.update(
     {"_id": "2"},
-    {"_id": "2", "choice": ""},
+    {"_id": "2"},
     {upsert: true}
   );
 });
@@ -34,10 +34,6 @@ if (Meteor.isClient) {
 
   Template.result.helpers({
     text: function(){
-      var players = Players.find({}).fetch();
-      var player1 = players[0];
-      var player2 = players[1];
-
       var choices = ["rock", "paper", "scissors"];
       var mapped = {};
 
@@ -48,15 +44,26 @@ if (Meteor.isClient) {
         mapped[choice][choices[(i+2)%3]] = 2;
       });
 
-      p1Choice = player1.choice;
-      p2Choice = player2.choice;
+      var currPlayer = Players.findOne({"_id": this._id});
+      var otherId = this._id === "1" ? "2" : "1";
+      var otherPlayer = Players.findOne({"_id": otherId});
 
-      if (mapped[p1Choice][p2Choice] === 0) {
+      console.log('currPlayer',  currPlayer);
+      console.log('otherPlayer',  otherPlayer);
+
+      var currChoice = currPlayer.choice;
+      var otherChoice = otherPlayer.choice;
+
+      if (!otherChoice) {
+        return "Waiting for opponent's choice";
+      }
+
+      if (mapped[currChoice][otherChoice] === 0) {
         return "It's a draw";
-      } else if (mapped[p1Choice][p2Choice] === 1) {
-        return "Player 2 wins";
-      } else if (mapped[p1Choice][p2Choice] === 2){
-        return "Player 1 wins";
+      } else if (mapped[currChoice][otherChoice] === 1) {
+        return "You lose";
+      } else if (mapped[currChoice][otherChoice] === 2){
+        return "You win";
       }
     }
   });
@@ -72,6 +79,7 @@ if (Meteor.isClient) {
         {$set: {"choice": choice}},
         {upsert: true}
       );
+
     }
   });
 };
