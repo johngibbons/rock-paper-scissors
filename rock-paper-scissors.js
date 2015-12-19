@@ -1,90 +1,59 @@
 Players = new Mongo.Collection('player');
-
-var choices = ["rock", "paper", "scissors"];
-var mapped = {};
-
-choices.forEach(function(choice, i) {
-  mapped[choice] = {};
-  mapped[choice][choice] = 0;
-  mapped[choice][choices[(i+1)%3]] = 1;
-  mapped[choice][choices[(i+2)%3]] = 2;
-});
+var gameLogicMap = generateGameLogic();
 
 Meteor.startup(function(){
-  Players.update(
-    {"_id": "1"},
-    {"_id": "1"},
-    {upsert: true}
-  );
-
-  Players.update(
-    {"_id": "2"},
-    {"_id": "2"},
-    {upsert: true}
-  );
+  Meteor.call('resetGame');
 });
 
 Router.route('/player1', function() {
   this.render('player',
-    {data: function() {
-      return Players.findOne({"_id": "1"});
-    }}
+    {data: function() { return Players.findOne({"_id": "1"}); }}
   );
 });
 
 Router.route('/player2', function() {
   this.render('player',
-    {data: function() {
-      return Players.findOne({"_id": "2"});
-    }}
+    {data: function() { return Players.findOne({"_id": "2"}); }}
   );
 });
 
 if (Meteor.isClient) {
 
   Template.result.helpers({
-    ownChoice: function() {
+    playerChoice: function() {
       return this.choice || "Choose a move";
     },
     opponentChoice: function() {
-      var otherId = this._id === "1" ? "2" : "1";
-      var otherPlayer = Players.findOne({"_id": otherId});
+      var opponent = getOpponent(this);
+
       if (this.choice) {
-        return otherPlayer.choice || "waiting for opponent...";
+        return opponent.choice || "waiting for opponent...";
       } else {
-        if (otherPlayer.choice) {
-          return "hidden";
-        } else {
-          return "waiting for opponent...";
-        }
+        return opponent.choice ? "hidden" : "waiting for opponent...";
       }
     },
     finalResult: function() {
-      var currPlayer = Players.findOne({"_id": this._id});
-      var otherId = this._id === "1" ? "2" : "1";
-      var otherPlayer = Players.findOne({"_id": otherId});
+      var opponent = getOpponent(this);
+      var result = gameLogicMap[this.choice][opponent.choice];
 
-      var currChoice = currPlayer.choice;
-      var otherChoice = otherPlayer.choice;
-
-      if (mapped[currChoice][otherChoice] === 0) {
+      if (result === "draw") {
         return "It's a draw";
-      } else if (mapped[currChoice][otherChoice] === 1) {
+      } else if (result === "second wins") {
         return "You lose";
-      } else if (mapped[currChoice][otherChoice] === 2){
+      } else if (result === "first wins"){
         return "You win";
       }
     },
     resultClasses: function() {
-      var otherId = this._id === "1" ? "2" : "1";
-      var otherPlayer = Players.findOne({"_id": otherId});
-      return this.choice && otherPlayer.choice ? "finalResult" :
+      var opponent = getOpponent(this);
+
+      return this.choice && opponent.choice ? "finalResult" :
         "finalResult is-hidden";
     }
   });
 
   Template.optionBtns.events({
-    "click .shoot": function(e) {
+    "click .shoot button": function(e) {
       e.preventDefault();
 
       var choice = e.target.value;
@@ -98,27 +67,51 @@ if (Meteor.isClient) {
   });
 
   Template.result.events({
-    "click .reset": function(e) {
+    'click .reset': function(e) {
       e.preventDefault();
-
-      Players.update(
-        {"_id": "1"},
-        {"_id": "1"},
-        {upsert: true}
-      );
-
-      Players.update(
-        {"_id": "2"},
-        {"_id": "2"},
-        {upsert: true}
-      );
+      Meteor.call('resetGame');
     }
   });
 
 };
 
+Meteor.methods({
+  resetGame: function() {
+    Players.update(
+      {"_id": "1"},
+      {"_id": "1"},
+      {upsert: true}
+    );
+    Players.update(
+      {"_id": "2"},
+      {"_id": "2"},
+      {upsert: true}
+    );
+  }
+});
+
+
 if (Meteor.isServer) {
   Meteor.startup(function () {
     // code to run on server at startup
   });
+}
+
+function generateGameLogic() {
+  var choices = ["rock", "paper", "scissors"];
+  var map = {};
+
+  choices.forEach(function(choice, i) {
+    map[choice] = {};
+    map[choice][choice] = "draw";
+    map[choice][choices[(i+1)%3]] = "second wins";
+    map[choice][choices[(i+2)%3]] = "first wins";
+  });
+
+  return map;
+}
+
+function getOpponent(thisPlayer) {
+  var opponentId = thisPlayer._id === "1" ? "2" : "1";
+  return Players.findOne({"_id": opponentId});
 }
