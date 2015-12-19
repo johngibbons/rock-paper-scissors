@@ -1,1 +1,162 @@
 /* CSS declarations go here */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+    background-color: #272e33;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+html {
+  font-family: sans-serif;
+  outline: none;
+}
+
+.container {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 3rem;
+}
+
+button {
+  background-color: #B5BD68;
+  border: none;
+  font-size: 1.2em;
+  color: #222;
+  cursor: pointer;
+  padding: 0.75em 1.25em;
+}
+
+button:hover {
+  background: #c2c983;
+}
+
+button:active {
+  background: #a8b14e;
+}
+
+button:focus {
+  outline: none;
+}
+
+button.reset {
+  margin-top: 3rem;
+}
+
+.shoot {
+  text-align: center;
+  padding-bottom: 3rem;
+}
+
+.shoot button {
+  padding: 0;
+  margin: 0 1rem;
+  border-radius: 100%;
+  width: 120px;
+  height: 120px;
+}
+
+table {
+  width: 100%;
+  text-align: center;
+  border: 1px solid #222;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+td, th {
+  padding: 2em;
+  margin: 0;
+  width: 50%;
+}
+
+td:first-child, th:first-child {
+  border-right: 1px solid #222;
+}
+
+th {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 300;
+  color: #999;
+  background-color: #374148;
+  border-bottom: 1px solid #222;
+}
+
+td {
+  font-size: 2em;
+  font-weight: 700;
+  color: #B5BD68;
+  padding: 4em 0;
+  background-color: #21272b;
+}
+
+.finalResult {
+  visibility: visible;
+  opacity: 1;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding-top: 15rem;
+  background-color: rgba(0,0,0,0.6);
+  color: #B5BD68;
+  text-align: center;
+}
+
+.finalResult .content {
+  width: 50%;
+  margin: auto;
+}
+
+.finalResult p {
+  font-size: 3em;
+}
+
+.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(.07,.72,.53,.93);
+}
+

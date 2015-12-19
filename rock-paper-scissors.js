@@ -47,12 +47,16 @@ if (Meteor.isClient) {
       return this.choice || "Choose a move";
     },
     opponentChoice: function() {
+      var otherId = this._id === "1" ? "2" : "1";
+      var otherPlayer = Players.findOne({"_id": otherId});
       if (this.choice) {
-        var otherId = this._id === "1" ? "2" : "1";
-        var otherPlayer = Players.findOne({"_id": otherId});
         return otherPlayer.choice || "waiting for opponent...";
       } else {
-        return "waiting for your move...";
+        if (otherPlayer.choice) {
+          return "hidden";
+        } else {
+          return "waiting for opponent...";
+        }
       }
     },
     finalResult: function() {
@@ -70,6 +74,12 @@ if (Meteor.isClient) {
       } else if (mapped[currChoice][otherChoice] === 2){
         return "You win";
       }
+    },
+    resultClasses: function() {
+      var otherId = this._id === "1" ? "2" : "1";
+      var otherPlayer = Players.findOne({"_id": otherId});
+      return this.choice && otherPlayer.choice ? "finalResult" :
+        "finalResult is-hidden";
     }
   });
 
@@ -84,9 +94,27 @@ if (Meteor.isClient) {
         {$set: {"choice": choice}},
         {upsert: true}
       );
-
     }
   });
+
+  Template.result.events({
+    "click .reset": function(e) {
+      e.preventDefault();
+
+      Players.update(
+        {"_id": "1"},
+        {"_id": "1"},
+        {upsert: true}
+      );
+
+      Players.update(
+        {"_id": "2"},
+        {"_id": "2"},
+        {upsert: true}
+      );
+    }
+  });
+
 };
 
 if (Meteor.isServer) {
