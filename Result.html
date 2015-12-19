@@ -1,3 +1,17 @@
 <template name="result">
-  {{text}}
+  <table class="scoreboard">
+    <thead>
+      <tr>
+        <th>Your Selection</th>
+        <th>Opponent's Selection</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ownChoice}}</td>
+        <td>{{opponentChoice}}</td>
+      </tr>
+      <tr>{{finalResult}}</tr>
+    </tbody>
+  </table>
 </template>

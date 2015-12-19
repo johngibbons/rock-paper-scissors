@@ -1,5 +1,15 @@
 Players = new Mongo.Collection('player');
 
+var choices = ["rock", "paper", "scissors"];
+var mapped = {};
+
+choices.forEach(function(choice, i) {
+  mapped[choice] = {};
+  mapped[choice][choice] = 0;
+  mapped[choice][choices[(i+1)%3]] = 1;
+  mapped[choice][choices[(i+2)%3]] = 2;
+});
+
 Meteor.startup(function(){
   Players.update(
     {"_id": "1"},
@@ -15,7 +25,7 @@ Meteor.startup(function(){
 });
 
 Router.route('/player1', function() {
-  this.render('Player',
+  this.render('player',
     {data: function() {
       return Players.findOne({"_id": "1"});
     }}
@@ -23,7 +33,7 @@ Router.route('/player1', function() {
 });
 
 Router.route('/player2', function() {
-  this.render('Player',
+  this.render('player',
     {data: function() {
       return Players.findOne({"_id": "2"});
     }}
@@ -33,30 +43,25 @@ Router.route('/player2', function() {
 if (Meteor.isClient) {
 
   Template.result.helpers({
-    text: function(){
-      var choices = ["rock", "paper", "scissors"];
-      var mapped = {};
-
-      choices.forEach(function(choice, i) {
-        mapped[choice] = {};
-        mapped[choice][choice] = 0;
-        mapped[choice][choices[(i+1)%3]] = 1;
-        mapped[choice][choices[(i+2)%3]] = 2;
-      });
-
+    ownChoice: function() {
+      return this.choice || "Choose a move";
+    },
+    opponentChoice: function() {
+      if (this.choice) {
+        var otherId = this._id === "1" ? "2" : "1";
+        var otherPlayer = Players.findOne({"_id": otherId});
+        return otherPlayer.choice || "waiting for opponent...";
+      } else {
+        return "waiting for your move...";
+      }
+    },
+    finalResult: function() {
       var currPlayer = Players.findOne({"_id": this._id});
       var otherId = this._id === "1" ? "2" : "1";
       var otherPlayer = Players.findOne({"_id": otherId});
 
-      console.log('currPlayer',  currPlayer);
-      console.log('otherPlayer',  otherPlayer);
-
       var currChoice = currPlayer.choice;
       var otherChoice = otherPlayer.choice;
-
-      if (!otherChoice) {
-        return "Waiting for opponent's choice";
-      }
 
       if (mapped[currChoice][otherChoice] === 0) {
         return "It's a draw";
